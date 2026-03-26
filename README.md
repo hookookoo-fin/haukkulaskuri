@@ -1,0 +1,2 @@
+# haukkulaskuri
+Haukkutiheyden laskennan avustaja
