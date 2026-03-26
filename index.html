@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Haukkulaskuri Pro v2.3</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#27ae60">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="icon.png">
+    <style>
+        :root { --bg: #f4f7f6; --dark: #2c3e50; --red: #e74c3c; --green: #27ae60; --blue: #3498db; --grey: #bdc3c7; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--dark); margin: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; user-select: none; -webkit-tap-highlight-color: transparent; position: relative; }
+        .info-btn { position: absolute; top: 10px; right: 10px; background: none; border: 1px solid var(--grey); color: var(--grey); border-radius: 50%; width: 25px; height: 25px; font-weight: bold; z-index: 100; }
+        #vibe-toggle { position: absolute; top: 10px; left: 10px; background: none; border: 1px solid var(--grey); font-size: 1.2rem; border-radius: 5px; padding: 2px 5px; opacity: 0.5; z-index: 100; }
+        #vibe-toggle.active { opacity: 1; border-color: var(--blue); color: var(--blue); background: #e3f2fd; }
+        h1 { margin: 10px 0 5px; font-size: 1rem; text-transform: uppercase; color: #95a5a6; }
+        .presets { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-bottom: 5px; }
+        .btn-preset { border: 2px solid transparent; padding: 8px 12px; border-radius: 8px; color: white; font-weight: 800; opacity: 0.2; transition: all 0.2s; }
+        .btn-preset.active { opacity: 1; border-color: var(--dark); transform: scale(1.05); }
+        .p5 { background: #95a5a6; } .p10 { background: #16a085; } .p15 { background: #f39c12; } .p30 { background: var(--blue); } .p60 { background: #8e44ad; }
+        .timer-container { text-align: center; margin-bottom: 10px; }
+        #timer-display { font-size: 5rem; font-weight: 900; margin: 0; line-height: 1; }
+        #start-btn { background: var(--red); color: white; border: none; padding: 10px 40px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; box-shadow: 0 4px 0 #c0392b; }
+        .counter-section { width: 100%; background: white; border-top: 2px solid #ddd; border-radius: 25px 25px 0 0; display: flex; flex-direction: column; align-items: center; padding: 10px 0; }
+        #count-display { font-size: 4rem; font-weight: 900; margin: 0; color: var(--green); }
+        #hpm-display { font-size: 1.2rem; font-weight: bold; color: #bdc3c7; margin-bottom: 5px; }
+        .control-row { width: 92%; display: flex; flex-direction: column; height: 110px; align-items: center; justify-content: center; position: relative; }
+        #bark-btn { background-color: white; border: 2px solid var(--green); width: 100%; height: 100px; border-radius: 15px; box-shadow: 0 6px 0 var(--green); display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 0; }
+        #bark-btn img { height: 90%; width: auto; object-fit: contain; pointer-events: none; }
+        #bark-btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 3px 0 var(--green); }
+        #bark-btn:disabled { border-color: var(--grey); box-shadow: 0 6px 0 var(--grey); opacity: 0.3; }
+        #save-btn { background: #d4edda; color: var(--green); border: 2px solid var(--green); width: 80px; height: 80px; border-radius: 50%; font-size: 2.5rem; display: none; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .history-section { flex-grow: 1; width: 100%; background: #fdfdfd; overflow-y: auto; padding: 10px; border-top: 1px solid #eee; }
+        .history-controls { display: flex; justify-content: space-between; align-items: center; padding: 0 10px 10px; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid #eee; background: white; margin-bottom: 4px; border-radius: 5px; font-size: 0.9rem; }
+        #update-banner { display: none; position: fixed; top: 0; width: 100%; background: var(--blue); color: white; text-align: center; padding: 10px; z-index: 3000; }
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; margin: 15% auto; padding: 20px; border-radius: 20px; width: 80%; }
+    </style>
+</head>
+<body>
+    <div id="update-banner" onclick="window.location.reload()">Uusi versio saatavilla! Päivitä tästä.</div>
+    <button id="vibe-toggle" onclick="toggleVibration()">📳</button>
+    <button class="info-btn" onclick="toggleModal(true)">?</button>
+    <h1>Haukkulaskuri v2.3</h1>
+    <div class="presets">
+        <button id="btn-5" class="btn-preset p5" onclick="setTimer(5)">5s</button>
+        <button id="btn-10" class="btn-preset p10" onclick="setTimer(10)">10s</button>
+        <button id="btn-15" class="btn-preset p15" onclick="setTimer(15)">15s</button>
+        <button id="btn-30" class="btn-preset p30 active" onclick="setTimer(30)">30s</button>
+        <button id="btn-60" class="btn-preset p60" onclick="setTimer(60)">60s</button>
+    </div>
+    <div class="timer-container">
+        <p id="timer-display">30</p>
+        <button id="start-btn" onclick="handleStart()">START</button>
+    </div>
+    <div class="counter-section">
+        <p id="count-display">0</p>
+        <div id="hpm-display">HPM: 0</div>
+        <div class="control-row">
+            <button id="bark-btn" onclick="addBark()" disabled><img src="koira.jpg" alt="Koira"></button>
+            <button id="save-btn" onclick="saveResult()">💾</button>
+        </div>
+    </div>
+    <div class="history-section">
+        <div class="history-controls"><div id="avg-display" style="font-weight:bold">Keskiarvo: 0 HPM</div><button onclick="copyToClipboard()" id="copy-btn" style="display:none; background:#e3f2fd; border:none; padding:5px 10px; border-radius:15px; color:var(--blue); font-weight:bold;">📋</button></div>
+        <ul id="history-list" style="list-style:none; padding:0; margin:0;"></ul>
+        <button onclick="clearHistory()" id="clear-btn" style="display:none; margin:10px auto; background:none; border:none; color:#95a5a6; text-decoration:underline;">Tyhjennä kaikki</button>
+    </div>
+    <div id="infoModal" class="modal"><div id="ohje-sisalto" class="modal-content">Ladataan...</div></div>
+
+    <script>
+        let selectedTime = 30, timeLeft = 30, barkCount = 0, timerInterval = null, isRunning = false;
+        let history = JSON.parse(localStorage.getItem('barkHistory')) || [];
+        let vibrationEnabled = JSON.parse(localStorage.getItem('vibrationEnabled')) || false;
+        window.onload = () => { renderHistory(); if(vibrationEnabled) document.getElementById('vibe-toggle').classList.add('active'); };
+        function toggleVibration() { vibrationEnabled = !vibrationEnabled; localStorage.setItem('vibrationEnabled', vibrationEnabled); document.getElementById('vibe-toggle').classList.toggle('active'); if(vibrationEnabled && navigator.vibrate) navigator.vibrate(200); }
+        function setTimer(s) { stopTimer(); selectedTime = s; timeLeft = s; barkCount = 0; document.querySelectorAll('.btn-preset').forEach(b => b.classList.remove('active')); document.getElementById('btn-' + s).classList.add('active'); document.getElementById('save-btn').style.display = 'none'; document.getElementById('bark-btn').style.display = 'flex'; updateUI(); }
+        function handleStart() { stopTimer(); barkCount = 0; timeLeft = selectedTime; document.getElementById('bark-btn').disabled = false; document.getElementById('bark-btn').style.display = 'flex'; document.getElementById('save-btn').style.display = 'none'; isRunning = true; timerInterval = setInterval(() => { timeLeft--; if (timeLeft <= 0) { timeLeft = 0; stopTimer(); if(vibrationEnabled && navigator.vibrate) navigator.vibrate([300, 100, 300]); document.getElementById('bark-btn').disabled = true; setTimeout(() => { document.getElementById('bark-btn').style.display = 'none'; document.getElementById('save-btn').style.display = 'flex'; }, 2000); } updateUI(); }, 1000); updateUI(); }
+        function stopTimer() { clearInterval(timerInterval); isRunning = false; document.getElementById('bark-btn').disabled = true; }
+        function addBark() { if (isRunning) { barkCount++; updateUI(); if(vibrationEnabled && navigator.vibrate) navigator.vibrate(40); } }
+        function updateUI() { document.getElementById('timer-display').textContent = timeLeft; document.getElementById('count-display').textContent = barkCount; const hpm = barkCount > 0 ? Math.round((barkCount / selectedTime) * 60) : 0; document.getElementById('hpm-display').textContent = `HPM: ${hpm}`; }
+        function saveResult() { const hpm = Math.round((barkCount / selectedTime) * 60); const timeStr = new Date().toLocaleTimeString('fi-FI', {hour: '2-digit', minute:'2-digit'}); history.unshift({ id: Date.now(), time: timeStr, hpm: hpm, preset: selectedTime }); localStorage.setItem('barkHistory', JSON.stringify(history)); document.getElementById('save-btn').style.display = 'none'; document.getElementById('bark-btn').style.display = 'flex'; renderHistory(); }
+        function renderHistory() { const list = document.getElementById('history-list'); list.innerHTML = ''; if (history.length === 0) { document.getElementById('avg-display').textContent = "Keskiarvo: 0 HPM"; document.getElementById('copy-btn').style.display = 'none'; document.getElementById('clear-btn').style.display = 'none'; return; } let sum = 0; history.forEach(item => { sum += item.hpm; const li = document.createElement('li'); li.className = 'history-item'; li.innerHTML = `<span>${item.time} | <b>${item.hpm}</b> HPM <small>(${item.preset}s)</small></span><button onclick="deleteItem(${item.id})" style="background:none; border:none; color:var(--red)">🗑️</button>`; list.appendChild(li); }); document.getElementById('avg-display').textContent = `Keskiarvo: ${Math.round(sum / history.length)} HPM`; document.getElementById('copy-btn').style.display = 'block'; document.getElementById('clear-btn').style.display = 'block'; }
+        function deleteItem(id) { history = history.filter(i => i.id !== id); localStorage.setItem('barkHistory', JSON.stringify(history)); renderHistory(); }
+        function clearHistory() { if(confirm("Tyhjennetäänkö historia?")) { history = []; localStorage.removeItem('barkHistory'); renderHistory(); } }
+        async function toggleModal(show) { const modal = document.getElementById('infoModal'); if (show) { try { const response = await fetch('ohjeet.html'); const data = await response.text(); document.getElementById('ohje-sisalto').innerHTML = data + '<button onclick="toggleModal(false)" style="width:100%; padding:10px; background:var(--green); border:none; color:white; border-radius:10px; margin-top:10px;">Selvä!</button>'; } catch (err) { document.getElementById('ohje-sisalto').innerHTML = "Virhe ladattaessa ohjeita. <button onclick='toggleModal(false)'>Sulje</button>"; } modal.style.display = 'block'; } else { modal.style.display = 'none'; } }
+        function copyToClipboard() { let txt = `Haukkulaskuri Raportti\n`; history.forEach(i => txt += `${i.time}: ${i.hpm} HPM (${i.preset}s)\n`); txt += `Keskiarvo: ${document.getElementById('avg-display').textContent.split(': ')[1]}`; navigator.clipboard.writeText(txt).then(() => alert("Kopioitu!")); }
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').then(reg => { reg.addEventListener('updatefound', () => { let newWorker = reg.installing; newWorker.addEventListener('statechange', () => { if (newWorker.state === 'installed' && navigator.serviceWorker.controller) { document.getElementById('update-banner').style.display = 'block'; } }); }); }); }
+    </script>
+</body>
+</html>

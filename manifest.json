@@ -1,0 +1,16 @@
+{
+  "name": "Haukkulaskuri Pro",
+  "short_name": "Haukkulaskuri",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f4f7f6",
+  "theme_color": "#27ae60",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
