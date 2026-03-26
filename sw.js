@@ -1,11 +1,10 @@
-const cacheName = 'haukku-v16'; // MUISTA KASVATTAA TÄTÄ NUMEROA AINA KUN PÄIVITÄT!
+const cacheName = 'haukku-v17'; // MUISTA KASVATTAA TÄTÄ NUMEROA AINA KUN PÄIVITÄT!
 const assets = [
-  './', 
-  './index.html', 
-  './manifest.json', 
-  './icon.png', 
-  './ohjeet.html', // Lisätty uusi tiedosto listaan
-  './koira.jpg'   //Lisätty uusi tiedosto listaan
+  'index.html', 
+  'manifest.json', 
+  'icon.png', 
+  'ohjeet.html', // Lisätty uusi tiedosto listaan
+  'koira.jpg'   //Lisätty uusi tiedosto listaan
 ]; // sw.js poistettu tästä listasta
 
 // ... loppuosa sw.js-tiedostosta säilyy samana ...
