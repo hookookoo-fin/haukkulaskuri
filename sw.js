@@ -1,4 +1,4 @@
-const cacheName = 'haukku-v21'; // MUISTA KASVATTAA TÄTÄ NUMEROA AINA KUN PÄIVITÄT!
+const cacheName = 'haukku-v25'; // MUISTA KASVATTAA TÄTÄ NUMEROA AINA KUN PÄIVITÄT! PÅIVITÄ MYÖS INDEX.HTML VERSIO
 const assets = [
   'index.html', 
   'manifest.json', 

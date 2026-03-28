@@ -3,61 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Haukkulaskuri Pro v2.4</title>
+    <title>Haukkulaskuri Pro v2.5</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#27ae60">
+    <meta name="theme-color" content="#2c3e50">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="apple-touch-icon" href="icon.png">
     <style>
         :root { --bg: #f4f7f6; --dark: #2c3e50; --red: #e74c3c; --green: #27ae60; --blue: #3498db; --grey: #bdc3c7; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--dark); margin: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; user-select: none; -webkit-tap-highlight-color: transparent; position: relative; }
         
-        /* Yläkulman napit - Kirkkaat oletuksena */
-        .info-btn { position: absolute; top: 10px; right: 10px; background: white; border: 1px solid var(--dark); color: var(--dark); border-radius: 50%; width: 28px; height: 28px; font-weight: bold; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        body { 
+            font-family: sans-serif; 
+            background: var(--dark); /* Yläosan tumma tausta oletuksena */
+            color: white; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            height: 100vh; 
+            user-select: none; 
+            -webkit-tap-highlight-color: transparent; 
+            position: relative; 
+            overflow: hidden;
+        }
         
-        #vibe-toggle { position: absolute; top: 10px; left: 10px; background: white; border: 1px solid var(--blue); color: var(--blue); font-size: 1.2rem; border-radius: 5px; padding: 2px 5px; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        #vibe-toggle.inactive { opacity: 0.4; border-color: var(--grey); color: var(--grey); background: none; box-shadow: none; }
+        /* Yläkulman napit */
+        .info-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; z-index: 100; }
+        #vibe-toggle { position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.1); border: 1px solid var(--blue); color: var(--blue); font-size: 1.2rem; border-radius: 5px; padding: 2px 5px; z-index: 100; }
+        #vibe-toggle.inactive { opacity: 0.3; border-color: white; color: white; }
 
-        h1 { margin: 10px 0 5px; font-size: 1rem; text-transform: uppercase; color: #95a5a6; }
+        header { text-align: center; padding-top: 15px; width: 100%; }
+        h1 { margin: 0; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; color: var(--grey); }
+        .version-tag { font-size: 0.65rem; color: #7f8c8d; margin-top: 2px; display: block; }
 
-        .presets { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-bottom: 5px; }
-        .btn-preset { border: 2px solid transparent; padding: 8px 12px; border-radius: 8px; color: white; font-weight: 800; opacity: 0.2; transition: all 0.2s; }
-        .btn-preset.active { opacity: 1; border-color: var(--dark); transform: scale(1.05); }
+        .presets { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 15px 0; }
+        .btn-preset { border: 2px solid transparent; padding: 10px 14px; border-radius: 8px; color: white; font-weight: 800; opacity: 0.2; transition: all 0.2s; }
+        .btn-preset.active { opacity: 1; border-color: white; transform: scale(1.1); }
         .p5 { background: #95a5a6; } .p10 { background: #16a085; } .p15 { background: #f39c12; } .p30 { background: var(--blue); } .p60 { background: #8e44ad; }
 
-        .timer-container { text-align: center; margin-bottom: 10px; }
-        #timer-display { font-size: 5rem; font-weight: 900; margin: 0; line-height: 1; }
-        #start-btn { background: var(--red); color: white; border: none; padding: 10px 40px; border-radius: 50px; font-size: 1.2rem; font-weight: bold; box-shadow: 0 4px 0 #c0392b; }
+        .timer-container { text-align: center; padding-bottom: 20px; width: 100%; }
+        #timer-display { font-size: 6rem; font-weight: 900; margin: 0; line-height: 0.9; color: white; }
+        #start-btn { background: var(--red); color: white; border: none; padding: 12px 50px; border-radius: 50px; font-size: 1.3rem; font-weight: bold; box-shadow: 0 4px 0 #c0392b; margin-top: 10px; }
+        #start-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #c0392b; }
 
-        .counter-section { width: 100%; background: white; border-top: 2px solid #ddd; border-radius: 25px 25px 0 0; display: flex; flex-direction: column; align-items: center; padding: 10px 0; }
-        #count-display { font-size: 4rem; font-weight: 900; margin: 0; color: var(--green); }
-        #hpm-display { font-size: 1.2rem; font-weight: bold; color: #bdc3c7; margin-bottom: 5px; }
+        /* ALASEKTIO (Valkoinen tausta) */
+        .counter-section { 
+            width: 100%; 
+            background: white; 
+            flex-grow: 1;
+            border-radius: 30px 30px 0 0; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding-top: 20px;
+            color: var(--dark);
+            box-shadow: 0 -10px 20px rgba(0,0,0,0.2);
+        }
 
-        /* VIHREÄ HAUKKUNAPPI PLUS-SYMBOLILLA */
-        .control-row { width: 92%; display: flex; flex-direction: column; height: 110px; align-items: center; justify-content: center; position: relative; }
+        #count-display { font-size: 5rem; font-weight: 900; margin: 0; color: var(--green); line-height: 1; }
+        #hpm-display { font-size: 1.4rem; font-weight: bold; color: var(--grey); margin-bottom: 15px; }
+
+        .control-row { width: 90%; max-width: 400px; display: flex; flex-direction: column; height: 120px; align-items: center; justify-content: center; }
         #bark-btn { 
             background-color: var(--green); border: none; 
-            width: 100%; height: 100px; border-radius: 15px; 
-            box-shadow: 0 6px 0 #1e8449; display: flex; align-items: center; justify-content: center; 
-            color: white; font-size: 80px; font-weight: 900;
+            width: 100%; height: 100px; border-radius: 20px; 
+            box-shadow: 0 8px 0 #1e8449; display: flex; align-items: center; justify-content: center; 
+            color: white; font-size: 70px; font-weight: 900;
         }
-        #bark-btn:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 3px 0 #1e8449; }
-        #bark-btn:disabled { background: var(--grey); box-shadow: 0 6px 0 #95a5a6; opacity: 0.3; }
+        #bark-btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 4px 0 #1e8449; }
+        #bark-btn:disabled { background: var(--grey); box-shadow: 0 8px 0 #95a5a6; opacity: 0.3; }
         
         #save-btn { 
             background: #d4edda; color: var(--green); border: 2px solid var(--green); 
-            width: 80px; height: 80px; border-radius: 50%; font-size: 2.5rem; 
+            width: 90px; height: 90px; border-radius: 50%; font-size: 3rem; 
             display: none; align-items: center; justify-content: center; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-        .history-section { flex-grow: 1; width: 100%; background: #fdfdfd; overflow-y: auto; padding: 10px; border-top: 1px solid #eee; }
-        .history-controls { display: flex; justify-content: space-between; align-items: center; padding: 0 10px 10px; }
-        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid #eee; background: white; margin-bottom: 4px; border-radius: 5px; font-size: 0.9rem; }
+        .history-section { width: 100%; background: #fdfdfd; overflow-y: auto; padding: 15px; border-top: 1px solid #eee; flex-shrink: 1; }
+        .history-controls { display: flex; justify-content: space-between; align-items: center; padding: 0 10px 10px; color: var(--dark); }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; border-bottom: 1px solid #eee; background: white; margin-bottom: 5px; border-radius: 8px; color: var(--dark); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         
-        #update-banner { display: none; position: fixed; top: 0; width: 100%; background: var(--blue); color: white; text-align: center; padding: 10px; z-index: 3000; }
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
-        .modal-content { background: white; margin: 15% auto; padding: 20px; border-radius: 20px; width: 80%; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
+        #update-banner { display: none; position: fixed; top: 0; width: 100%; background: var(--blue); color: white; text-align: center; padding: 12px; z-index: 3000; font-weight: bold; }
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); }
+        .modal-content { background: white; margin: 15% auto; padding: 25px; border-radius: 25px; width: 85%; max-width: 450px; color: var(--dark); }
     </style>
 </head>
 <body>
@@ -67,7 +95,10 @@
     <button id="vibe-toggle" onclick="toggleVibration()">📳</button>
     <button class="info-btn" onclick="toggleModal(true)">?</button>
 
-    <h1>Haukkulaskuri</h1>
+    <header>
+        <h1>Haukkulaskuri</h1>
+        <span class="version-tag">Version 1.0.25 (PWA)</span>
+    </header>
 
     <div class="presets">
         <button id="btn-5" class="btn-preset p5" onclick="setTimer(5)">5s</button>
@@ -87,18 +118,18 @@
         <div id="hpm-display">HPM: 0</div>
         
         <div class="control-row">
-            <button id="bark-btn" onclick="addBark()" disabled>➕</button>
+            <button id="bark-btn" onclick="addBark()" disabled>+</button>
             <button id="save-btn" onclick="saveResult()">💾</button>
         </div>
-    </div>
 
-    <div class="history-section">
-        <div class="history-controls">
-            <div id="avg-display" style="font-weight:bold">Keskiarvo: 0 HPM</div>
-            <button onclick="copyToClipboard()" id="copy-btn" style="display:none; background:#e3f2fd; border:none; padding:5px 10px; border-radius:15px; color:var(--blue); font-weight:bold;">📋</button>
+        <div class="history-section">
+            <div class="history-controls">
+                <div id="avg-display" style="font-weight:bold">Keskiarvo: 0 HPM</div>
+                <button onclick="copyToClipboard()" id="copy-btn" style="display:none; background:#e3f2fd; border:none; padding:8px 15px; border-radius:20px; color:var(--blue); font-weight:bold;">📋 KOPIOI</button>
+            </div>
+            <ul id="history-list" style="list-style:none; padding:0; margin:0;"></ul>
+            <button onclick="clearHistory()" id="clear-btn" style="display:none; margin:15px auto; background:none; border:none; color:#95a5a6; text-decoration:underline; width:100%;">Tyhjennä historia</button>
         </div>
-        <ul id="history-list" style="list-style:none; padding:0; margin:0;"></ul>
-        <button onclick="clearHistory()" id="clear-btn" style="display:none; margin:10px auto; background:none; border:none; color:#95a5a6; text-decoration:underline;">Tyhjennä kaikki</button>
     </div>
 
     <div id="infoModal" class="modal">
@@ -106,17 +137,11 @@
     </div>
 
     <script>
-        // OLETUSASETUKSET: 60s ja värinä PÄÄLLÄ
         let selectedTime = 60, timeLeft = 60, barkCount = 0, timerInterval = null, isRunning = false;
         let history = JSON.parse(localStorage.getItem('barkHistory')) || [];
-        
-        // Luetaan värinäasetus, oletuksena true jos ei tallennettu
         let vibrationEnabled = localStorage.getItem('vibrationEnabled') === null ? true : JSON.parse(localStorage.getItem('vibrationEnabled'));
 
-        window.onload = () => {
-            renderHistory();
-            updateVibeUI();
-        };
+        window.onload = () => { renderHistory(); updateVibeUI(); };
 
         function toggleVibration() {
             vibrationEnabled = !vibrationEnabled;
@@ -127,11 +152,8 @@
 
         function updateVibeUI() {
             const btn = document.getElementById('vibe-toggle');
-            if(vibrationEnabled) {
-                btn.classList.remove('inactive');
-            } else {
-                btn.classList.add('inactive');
-            }
+            if(vibrationEnabled) { btn.classList.remove('inactive'); } 
+            else { btn.classList.add('inactive'); }
         }
 
         function setTimer(s) {
@@ -201,7 +223,7 @@
                 const li = document.createElement('li');
                 li.className = 'history-item';
                 li.innerHTML = `<span>${item.time} | <b>${item.hpm}</b> HPM <small>(${item.preset}s)</small></span>
-                                <button onclick="deleteItem(${item.id})" style="background:none; border:none; color:var(--red)">🗑️</button>`;
+                                <button onclick="deleteItem(${item.id})" style="background:none; border:none; color:var(--red); font-size:1.2rem;">🗑️</button>`;
                 list.appendChild(li);
             });
             document.getElementById('avg-display').textContent = `Keskiarvo: ${Math.round(sum / history.length)} HPM`;
@@ -218,7 +240,7 @@
                 try {
                     const response = await fetch('ohjeet.html');
                     const data = await response.text();
-                    document.getElementById('ohje-sisalto').innerHTML = data + '<button onclick="toggleModal(false)" style="width:100%; padding:12px; background:var(--green); border:none; color:white; border-radius:10px; margin-top:15px; font-weight:bold;">Selvä!</button>';
+                    document.getElementById('ohje-sisalto').innerHTML = data + '<button onclick="toggleModal(false)" style="width:100%; padding:15px; background:var(--green); border:none; color:white; border-radius:15px; margin-top:20px; font-weight:bold;">SELVÄ!</button>';
                 } catch (err) {
                     document.getElementById('ohje-sisalto').innerHTML = "Ohjeita ladataan... <button onclick='toggleModal(false)'>Sulje</button>";
                 }
@@ -230,7 +252,11 @@
             let txt = `Haukkulaskuri Raportti\n`;
             history.forEach(i => txt += `${i.time}: ${i.hpm} HPM (${i.preset}s)\n`);
             txt += `Keskiarvo: ${document.getElementById('avg-display').textContent.split(': ')[1]}`;
-            navigator.clipboard.writeText(txt).then(() => alert("Kopioitu!"));
+            navigator.clipboard.writeText(txt).then(() => {
+                const btn = document.getElementById('copy-btn');
+                btn.innerText = "Kopioitu!";
+                setTimeout(() => btn.innerText = "📋 KOPIOI", 2000);
+            });
         }
 
         if ('serviceWorker' in navigator) {
