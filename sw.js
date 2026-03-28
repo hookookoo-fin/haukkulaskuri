@@ -1,4 +1,4 @@
-const cacheName = 'haukku-v26'; // MUISTA KASVATTAA TÄTÄ NUMEROA!
+const cacheName = 'haukku-v27'; // MUISTA KASVATTAA TÄTÄ NUMEROA!
 const assets = [
   'index.html', 
   'manifest.json', 
